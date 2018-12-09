@@ -31,7 +31,7 @@ class BookViewModel {
 
         val json = MediaType.parse("application/json; charset=utf-8")
         val query = """
-            {"query":"{ book(id: \"$id\") { id, name, genre } }","variables":null}
+            {"query":"{ book(id: \"$id\") { id, name, genre } }"}
         """
         val body = RequestBody.create(json, query)
 
