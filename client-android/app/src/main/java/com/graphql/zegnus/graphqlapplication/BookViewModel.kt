@@ -8,6 +8,7 @@ import com.graphql.zegnus.graphqlapplication.api.ApiResponse
 import com.graphql.zegnus.graphqlapplication.api.Book
 import kotlinx.coroutines.*
 import okhttp3.*
+import java.io.IOException
 
 class BookViewModel {
 
@@ -40,11 +41,15 @@ class BookViewModel {
             .post(body)
             .build()
 
-        val response = okHttpClient.newCall(request).execute()
-        return if (response.isSuccessful) {
-            parseResponse(response)
-        } else {
-            Feedback.Error(response.message())
+        return try {
+            val response = okHttpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                parseResponse(response)
+            } else {
+                Feedback.Error(response.message())
+            }
+        } catch (exception: IOException) {
+            Feedback.Error(exception.localizedMessage)
         }
     }
 
