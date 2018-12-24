@@ -1,6 +1,6 @@
 # Basic end-to-end GraphQL implementation with Express and Android-Kotlin with coroutines (part 1)
 
-I decided to investigate what is GraphQL as to gather knowledge on this technology and be able to make informed decisions regarding the future of APIs in my profession.
+I decided to investigate what is GraphQL as to gather knowledge on this technology and be able to make informed decisions regarding the future of APIs in my profession. You will find all the code in my github repository https://github.com/zegnus/graph-ql-end-to-end-android
 
 This article I won't actually explain what is it in detail and everything that you can do with it, and I won't compare it either with a traditional REST approach. For that I will link lots of resources at the bottom of this article where you can go and read from people that has done an extendise research on it and created awesome documentation.
 
@@ -262,7 +262,8 @@ I encourage you take this basic implementation and create more queries and more 
 
 **Resources**
 
-
-Android
-apollo service:download --endpoint=http://localhost:4000/graphql
-https://github.com/wuseal/JsonToKotlinClass
+- Full stack tutorial, I strongly recommend to go through the GraphQL Fundamentals https://www.howtographql.com/
+- GitHub experience: https://www.youtube.com/watch?v=broQmxQAMjM
+- Akamai GraphQL cache https://www.youtube.com/watch?v=r91_QjaGzWM
+- Request batch and cache https://www.youtube.com/watch?v=ld2_AS4l19g
+- Interfaces https://medium.com/the-graphqlhub/graphql-tour-interfaces-and-unions-7dd5be35de0d
