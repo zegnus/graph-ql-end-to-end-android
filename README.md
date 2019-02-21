@@ -1,4 +1,4 @@
-# Basic end-to-end GraphQL implementation with Express and Android-Kotlin with coroutines (part 1)
+# Basic end-to-end GraphQL implementation with Express and Android-Kotlin with coroutines
 
 I decided to investigate what is GraphQL as to gather knowledge on this technology and be able to make informed decisions regarding the future of APIs in my profession. You will find all the code in my github repository https://github.com/zegnus/graph-ql-end-to-end-android
 
@@ -195,6 +195,7 @@ const RootQuery = new GraphQLObjectType({
 ```
 
 An example of actual request from a client that matches this definition will look like:
+
 ```
 book(id: "2") {
  name
@@ -259,6 +260,114 @@ On the left you can create your first query:
 And if you click the play button, then you will execute it and your server will reply on the right. You can change the `id` or the fields that you want to request. It just works, it's awesome.
 
 I encourage you take this basic implementation and create more queries and more types. You will see how easy it is to create complex requests with a minimum set of code.
+
+# Client
+
+We are going to create an Android application using Kotlin and co-routines, for that just create a blank project in Android Studio with Kotlin activated. The objective is to perform requests to our local GraphQL server and display very basic information from its responses, all of this without any GraphQL third party library.
+
+## Dependencies
+
+I have choosed to use the following dependencies:
+- OkHttp for our network calls
+- Jackson Json parser with Kotlin support for unmarshalling our JSON response to data Kotlin objects
+- Kotlin co-routines
+
+On your `/project/app/build.gradle`:
+
+```
+dependencies {
+    ...
+    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.7"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
+    ...
+}
+```
+
+In your Android manifest, remember to request the Internet permission:
+
+```
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+## Basic application architecture
+
+The application will have two main components:
+- An `Activity` that will display content on the screen and deal with the Android Framework
+- A `ViewModel` class that will know how to request data from the Activity
+
+This architecture is very basic but will allow us to clearly see what's Android specific and what's related to get the data through a GraphQL request in a background thread.
+
+## Activity
+
+The Activity will have two parts.
+
+First we are going to attach a click listener onto a button in our view, that will then execute a request for a book id.
+
+```
+button_request.setOnClickListener {
+    bookViewModel.requestBookId(input_book_id.text.toString(), requestBookCallback)
+}
+```
+
+The second part will be to process a callback fron that request. For this I have encoded a `Feedback` sealsed class with different classes of feedback that we can have, a very simple implementation is as follows:
+
+```
+when (feedback) {
+    is Feedback.Loading -> result.text = "Loading"
+    is Feedback.Error -> result.text = feedback.message
+    is Feedback.Loaded -> {
+        result.text = "Loaded"
+        book_id.text = feedback.book.id
+        book_name.text = feedback.book.name
+        book_genre.text = feedback.book.genre
+    }
+}
+```
+
+The entire Activity is encoded as follows:
+```
+class MainActivity : AppCompatActivity() { 
+
+    private val bookViewModel: BookViewModel = BookViewModel()
+    private val requestBookCallback: (Feedback) -> Unit = { feedback ->
+        when (feedback) {
+            is Feedback.Loading -> result.text = "Loading"
+            is Feedback.Error -> result.text = feedback.message
+            is Feedback.Loaded -> {
+                result.text = "Loaded"
+                book_id.text = feedback.book.id
+                book_name.text = feedback.book.name
+                book_genre.text = feedback.book.genre
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        button_request.setOnClickListener {
+            bookViewModel.requestBookId(input_book_id.text.toString(), requestBookCallback)
+        }
+    }
+
+    override fun onDestroy() {
+        bookViewModel.stop()
+        super.onDestroy()
+    }
+}
+```
+
+The `BookViewModel` has a `.stop()` method that will prevent any background process to go back to the Activity if we abandon it before it finishes. This can be also avoided by making the class implement the [LifeCycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
+
+
+## ViewModel
+
+In this class we are going to orchestrate the request from the click in the Activity, perform a raw GraphQL request in a background thread using co-routines.
+
+
 
 **Resources**
 
